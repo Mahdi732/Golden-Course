@@ -110,13 +110,13 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
-                                    <input id="first-name" type="text" required
+                                    <input id="first-name" type="text" name="first-name" required
                                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="John">
                                 </div>
                                 <div>
                                     <label for="last-name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                                    <input id="last-name" type="text" required
+                                    <input id="last-name" type="text" name="last-name" required
                                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Doe">
                                 </div>
@@ -128,7 +128,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-envelope text-gray-400"></i>
                                     </div>
-                                    <input id="signup-email" type="email" required
+                                    <input id="signup-email" type="email" name="signup-email" required
                                         class="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="you@example.com">
                                 </div>
@@ -152,7 +152,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-lock text-gray-400"></i>
                                     </div>
-                                    <input id="confirm-password" type="password" required
+                                    <input id="confirm-password" type="password" name="confirm-password" required
                                         class="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="••••••••">
                                 </div>
