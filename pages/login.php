@@ -105,7 +105,7 @@
                         </div>
                     </div>
 
-                    <form class="mt-8 space-y-6">
+                    <form class="mt-8 space-y-6" action="../prosses/user.php" method="POST">
                         <div class="space-y-4">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
