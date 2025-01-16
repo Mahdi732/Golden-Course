@@ -87,22 +87,26 @@ require_once('../prosses/user.php');
                 <?php
                 if (isset($_SESSION['user']) && $_SESSION['user']['role'] === "Admin") {
                     echo '<div class="d-flex align-items-center">
-                                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="admin.php" class="d-flex align-items-center " >
                                     <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                                 </a>
                         </div>';
                 } elseif (isset($_SESSION["user"]) && $_SESSION["user"]["role"] === "Etudiant") {
                     echo '<div class="d-flex align-items-center">
-                                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="etudiant.php" class="d-flex align-items-center " >
                                     <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                                 </a>
                         </div>';
                 } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
-                    echo '<div class="d-flex align-items-center">
-                                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"])) {
+                        echo 'You Are Not Active';
+                    }else{
+                        echo '<div class="d-flex align-items-center">
+                                <a href="etudiant.php" class="d-flex align-items-center " >
                                     <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                                 </a>
                         </div>';
+                    }
                 } else {
                     echo '<button type="button" class="btn btn-link text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal">
                             <i class="fa fa-search"></i>

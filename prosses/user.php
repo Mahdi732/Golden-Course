@@ -34,7 +34,7 @@ class User {
             $stmt->bindParam(':password', $this->passwordHash);
             $stmt->bindParam(':role', $this->role);
             $stmt->execute();
-            header('Location: ../pages/index.php');
+            header('Location: ../pages/login.php');
             exit;
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
@@ -52,13 +52,27 @@ class User {
 
             if ($user && password_verify($password, $user['password_hash'])) {
                 $_SESSION['user'] = [
-                    'id' => $user['id'],
+                    'id' => $user['user_id'],
                     'username' => $user['username'],
                     'email' => $user['email'],
-                    'role' => $user['role']
+                    'role' => $user['role'],
+                    'etat' => $user['is_active']
                 ];
-                header('Location: ../pages/index.php');
-                exit;
+                if ($_SESSION['user']['role'] === 'Enseignant') {
+                    $id = $_SESSION['user']['id'];
+                    $stmt = $db->prepare("UPDATE users
+                    SET is_active = FALSE
+                    WHERE user_id = $id;
+                    ");
+                    $stmt->execute();
+                    header('Location: ../pages/index.php');
+                    exit;
+                }else {
+                    header('Location: ../pages/index.php');
+                    exit;
+                }
+                
+                
             } else {
                 echo "Invalid email or password.";
             }
@@ -99,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $user = new User('', '', $email);
         $user->signIn($email, $password);
     }else {
-        echo '7wa';
+        echo 'no!!!';
     }
 }
 ?>
