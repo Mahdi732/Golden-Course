@@ -24,7 +24,6 @@ require_once('../prosses/user.php');
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
-
     <!-- Libraries Stylesheet -->
     <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
     <link href="./lib/animate/animate.min.css" rel="stylesheet">
@@ -73,7 +72,7 @@ require_once('../prosses/user.php');
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="collapse navbar-collapse gap-4" id="navbarCollapse">
                 <div class="navbar-nav ms-auto py-0">
                     <a href="index.php" class="nav-item nav-link active">Home</a>
                     <a href="about.php" class="nav-item nav-link">About</a>
@@ -83,17 +82,32 @@ require_once('../prosses/user.php');
                             <a href="course.php" class="dropdown-item">Course</a>
                             <a href="price.php" class="dropdown-item">Abonement</a>
                         </div>
-                    </div>
+                    </div> 
                 </div>
                 <?php
-                if (!isset($_SESSION['user'])) {
-                    echo '<button type="button" class="btn text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></button>
-                    <a href="login.php" class="btn btn-primary py-2 px-4 ms-3">login</a>';
+                if (isset($_SESSION['user']) && $_SESSION['user']['role'] === "Admin") {
+                    echo '<div class="d-flex align-items-center">
+                                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+                                </a>
+                        </div>';
+                } elseif (isset($_SESSION["user"]) && $_SESSION["user"]["role"] === "Etudiant") {
+                    echo '<div class="d-flex align-items-center">
+                                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+                                </a>
+                        </div>';
+                } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
+                    echo '<div class="d-flex align-items-center">
+                                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+                                </a>
+                        </div>';
                 } else {
-                    if ($_SESSION['user']) {
-                        echo '<span class="btn btn-success py-2 px-4 ms-3">Welcome, ' . $_SESSION['user']['username'] . '</span>';
-                        echo '<a href="logout.php" class="btn btn-danger py-2 px-4 ms-3">Logout</a>';
-                    }
+                    echo '<button type="button" class="btn btn-link text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <a href="login.php" class="btn btn-primary ms-3">Login</a>';
                 }
                 ?>
             </div>
