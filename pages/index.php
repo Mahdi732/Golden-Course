@@ -1,3 +1,7 @@
+<?php
+session_start();
+require_once('../prosses/user.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -81,8 +85,17 @@
                         </div>
                     </div>
                 </div>
-                <butaton type="button" class="btn text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></butaton>
-                <a href="login.php" class="btn btn-primary py-2 px-4 ms-3">Login</a>
+                <?php
+                if (!isset($_SESSION['user'])) {
+                    echo '<button type="button" class="btn text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></button>
+                    <a href="login.php" class="btn btn-primary py-2 px-4 ms-3">login</a>';
+                } else {
+                    if ($_SESSION['user']) {
+                        echo '<span class="btn btn-success py-2 px-4 ms-3">Welcome, ' . $_SESSION['user']['username'] . '</span>';
+                        echo '<a href="logout.php" class="btn btn-danger py-2 px-4 ms-3">Logout</a>';
+                    }
+                }
+                ?>
             </div>
         </nav>
 

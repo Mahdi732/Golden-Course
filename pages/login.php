@@ -25,7 +25,7 @@
                         </div>
                     </div>
 
-                    <form class="mt-8 space-y-6">
+                    <form action="../prosses/user.php" method="POST" class="mt-8 space-y-6">
                         <div class="space-y-4">
                             <div>
                                 <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -33,7 +33,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-envelope text-gray-400"></i>
                                     </div>
-                                    <input id="login-email" type="email" required 
+                                    <input id="login-email" type="email" name="login-email" required 
                                         class="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="you@example.com">
                                 </div>
@@ -45,7 +45,7 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-lock text-gray-400"></i>
                                     </div>
-                                    <input id="login-password" type="password" required
+                                    <input id="login-password" type="password" name="login-password" required
                                         class="pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="••••••••">
                                 </div>

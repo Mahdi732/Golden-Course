@@ -1,7 +1,8 @@
 <?php
 require_once('database.php');
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 class User {
     private $nom;
     private $prenom;
@@ -34,6 +35,7 @@ class User {
             $stmt->bindParam(':role', $this->role);
             $stmt->execute();
             header('Location: ../pages/index.php');
+            exit;
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
             throw new Exception("An error occurred while saving the user.");
@@ -55,7 +57,8 @@ class User {
                     'email' => $user['email'],
                     'role' => $user['role']
                 ];
-                header('Location: ../pages/dashboard.php');
+                header('Location: ../pages/index.php');
+                exit;
             } else {
                 echo "Invalid email or password.";
             }
@@ -64,7 +67,18 @@ class User {
             throw new Exception("An error occurred while signing in.");
         }
     }
+
+    public function signOut() {
+        if (isset($_SESSION['user'])) {
+            unset($_SESSION['user']);
+            session_destroy();
+            header('Location: ../pages/login.php');
+            exit;
+        }
+    }
+
 }
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST["signup-email"])) {
         $firstName = $_POST["first-name"];
@@ -78,12 +92,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if (isset($_POST["login-email"])) {
-        // تسجيل الدخول
         $email = $_POST["login-email"];
+        echo $email;
         $password = $_POST["login-password"];
-
+        echo $password;
         $user = new User('', '', $email);
         $user->signIn($email, $password);
+    }else {
+        echo '7wa';
     }
 }
 ?>
