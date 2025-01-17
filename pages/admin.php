@@ -1,3 +1,8 @@
+<?php
+session_start();
+require_once('../prosses/admin.php');
+$display = new Admin('', '', '');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +11,7 @@
     <title>EduTech Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/htmx.org"></script>
     <style>
         .sidebar {
             min-height: 100vh;
@@ -173,17 +179,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>John Doe</td>
-                                        <td>Teacher</td>
-                                        <td>john@example.com</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <!-- Add more rows as needed -->
+                                    <?php
+                                    $display->displayUsers();
+                                    ?>
                                 </tbody>
                             </table>
                         </div>

@@ -66,14 +66,14 @@
 
     <!-- Navbar Start -->
     <div class="container-fluid position-relative p-0">
-        <nav class="navbar navbar-expand-lg navbar-dark px-5 py-3 py-lg-0">
+    <nav class="navbar navbar-expand-lg navbar-dark px-5 py-3 py-lg-0">
             <a href="index.php" class="navbar-brand p-0">
                 <h1 class="m-0"><i class="fa fa-book me-2"></i>EduTech</h1>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                 <span class="fa fa-bars"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="collapse navbar-collapse gap-4" id="navbarCollapse">
                 <div class="navbar-nav ms-auto py-0">
                     <a href="index.php" class="nav-item nav-link active">Home</a>
                     <a href="about.php" class="nav-item nav-link">About</a>
@@ -83,10 +83,38 @@
                             <a href="course.php" class="dropdown-item">Course</a>
                             <a href="price.php" class="dropdown-item">Abonement</a>
                         </div>
-                    </div>
+                    </div> 
                 </div>
-                <butaton type="button" class="btn text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></butaton>
-                <a href="login.php" class="btn btn-primary py-2 px-4 ms-3">Login</a>
+                <?php
+                if (isset($_SESSION['user']) && $_SESSION['user']['role'] === "Admin") {
+                    echo '<div class="d-flex align-items-center">
+                                <a href="admin.php" class="d-flex align-items-center " >
+                                    <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+                                </a>
+                        </div>';
+                } elseif (isset($_SESSION["user"]) && $_SESSION["user"]["role"] === "Etudiant") {
+                    echo '<div class="d-flex align-items-center">
+                                <a href="etudiant.php" class="d-flex align-items-center " >
+                                    <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+                                </a>
+                        </div>';
+                } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
+                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"])) {
+                        echo 'You Are Not Active';
+                    }else{
+                        echo '<div class="d-flex align-items-center">
+                                <a href="etudiant.php" class="d-flex align-items-center " >
+                                    <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
+                                </a>
+                        </div>';
+                    }
+                } else {
+                    echo '<button type="button" class="btn btn-link text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        <a href="login.php" class="btn btn-primary ms-3">Login</a>';
+                }
+                ?>
             </div>
         </nav>
 

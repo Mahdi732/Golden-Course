@@ -98,7 +98,7 @@ require_once('../prosses/user.php');
                                 </a>
                         </div>';
                 } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
-                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"])) {
+                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"]) && $_SESSION["user"]["etat"] === 0) {
                         echo 'You Are Not Active';
                     }else{
                         echo '<div class="d-flex align-items-center">
@@ -106,6 +106,7 @@ require_once('../prosses/user.php');
                                     <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                                 </a>
                         </div>';
+                        echo $_SESSION["user"]["etat"] ;
                     }
                 } else {
                     echo '<button type="button" class="btn btn-link text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal">

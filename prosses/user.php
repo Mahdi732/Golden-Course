@@ -27,9 +27,9 @@ class User {
     public function save() {
         $db = $this->getDbConnection();
         try {
-            $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (:nom, :email, :password, :role)");
+            $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (:username, :email, :password, :role)");
             $username = $this->nom . " " . $this->prenom;
-            $stmt->bindParam(':nom', $username);
+            $stmt->bindParam(':username', $username);
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':password', $this->passwordHash);
             $stmt->bindParam(':role', $this->role);
@@ -38,12 +38,15 @@ class User {
             exit;
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
-            throw new Exception("An error occurred while saving the user.");
+            $_SESSION['error_message'] = "An error occurred while saving the user. Please try again.";
+            header('Location: ../pages/error.php');
+            exit;
         }
     }
 
     public function signIn($email, $password) {
         $db = $this->getDbConnection();
+
         try {
             $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
             $stmt->bindParam(':email', $email);
@@ -58,62 +61,65 @@ class User {
                     'role' => $user['role'],
                     'etat' => $user['is_active']
                 ];
+
                 if ($_SESSION['user']['role'] === 'Enseignant') {
                     $id = $_SESSION['user']['id'];
-                    $stmt = $db->prepare("UPDATE users
-                    SET is_active = FALSE
-                    WHERE user_id = $id;
-                    ");
+                    $stmt = $db->prepare("UPDATE users SET is_active = 0 WHERE user_id = :id");
+                    $stmt->bindParam(':id', $id);
                     $stmt->execute();
-                    header('Location: ../pages/index.php');
-                    exit;
-                }else {
-                    header('Location: ../pages/index.php');
-                    exit;
                 }
-                
-                
+
+                header('Location: ../pages/index.php');
+                exit;
             } else {
-                echo "Invalid email or password.";
+                $_SESSION['error_message'] = "Invalid email or password.";
+                header('Location: ../pages/login.php');
+                exit;
             }
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
-            throw new Exception("An error occurred while signing in.");
-        }
-    }
-
-    public function signOut() {
-        if (isset($_SESSION['user'])) {
-            unset($_SESSION['user']);
-            session_destroy();
+            $_SESSION['error_message'] = "An error occurred while signing in. Please try again.";
+            header('Location: ../pages/error.php');
+            exit;
+        } catch (Exception $e) {
+            $_SESSION['error_message'] = $e->getMessage();
             header('Location: ../pages/login.php');
             exit;
         }
     }
 
+    public function signOut() {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            unset($_SESSION['user']);
+            session_destroy();
+        }
+        header('Location: ../pages/login.php');
+        exit;
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST["signup-email"])) {
-        $firstName = $_POST["first-name"];
-        $lastName = $_POST["last-name"];
-        $email = $_POST["signup-email"];
-        $password = $_POST["confirm-password"];
-        $role = $_POST["role"];
+        if (isset($_POST["signup-email"])) {
+            $firstName = trim($_POST["first-name"]);
+            $lastName = trim($_POST["last-name"]);
+            $email = trim($_POST["signup-email"]);
+            $password = trim($_POST["confirm-password"]);
+            $role = trim($_POST["role"]);
+            if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($role)) {
+                throw new Exception("All fields are required.");
+            }
 
-        $user = new User($firstName, $lastName, $email, $password, $role);
-        $user->save();
-    }
+            $user = new User($firstName, $lastName, $email, $password, $role);
+            $user->save();
+        }
+        if (isset($_POST["login-email"])) {
+            $email = trim($_POST["login-email"]);
+            $password = trim($_POST["login-password"]);
+            if (empty($email) || empty($password)) {
+                throw new Exception("Email and password are required.");
+            }
 
-    if (isset($_POST["login-email"])) {
-        $email = $_POST["login-email"];
-        echo $email;
-        $password = $_POST["login-password"];
-        echo $password;
-        $user = new User('', '', $email);
-        $user->signIn($email, $password);
-    }else {
-        echo 'no!!!';
-    }
+            $user = new User(null, null, $email);
+            $user->signIn($email, $password);
+        }
 }
-?>
