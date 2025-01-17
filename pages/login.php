@@ -1,3 +1,8 @@
+<?php
+session_start();
+require_once('../prosses/user.php');
+require_once('../prosses/admin.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

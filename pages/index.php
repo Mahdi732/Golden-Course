@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once('../prosses/user.php');
+require_once('../prosses/admin.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,6 +24,7 @@ require_once('../prosses/user.php');
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org"></script>
 
     <!-- Libraries Stylesheet -->
     <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
@@ -98,7 +100,7 @@ require_once('../prosses/user.php');
                                 </a>
                         </div>';
                 } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
-                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"]) && $_SESSION["user"]["etat"] === 0) {
+                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"]) && $_SESSION["user"]["etat"] === "0") {
                         echo 'You Are Not Active';
                     }else{
                         echo '<div class="d-flex align-items-center">

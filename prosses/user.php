@@ -46,7 +46,6 @@ class User {
 
     public function signIn($email, $password) {
         $db = $this->getDbConnection();
-
         try {
             $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
             $stmt->bindParam(':email', $email);
@@ -61,14 +60,12 @@ class User {
                     'role' => $user['role'],
                     'etat' => $user['is_active']
                 ];
-
                 if ($_SESSION['user']['role'] === 'Enseignant') {
                     $id = $_SESSION['user']['id'];
                     $stmt = $db->prepare("UPDATE users SET is_active = 0 WHERE user_id = :id");
                     $stmt->bindParam(':id', $id);
                     $stmt->execute();
                 }
-
                 header('Location: ../pages/index.php');
                 exit;
             } else {
@@ -80,10 +77,6 @@ class User {
             error_log("Database error: " . $e->getMessage());
             $_SESSION['error_message'] = "An error occurred while signing in. Please try again.";
             header('Location: ../pages/error.php');
-            exit;
-        } catch (Exception $e) {
-            $_SESSION['error_message'] = $e->getMessage();
-            header('Location: ../pages/login.php');
             exit;
         }
     }

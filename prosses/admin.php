@@ -1,14 +1,15 @@
 <?php
 require_once('database.php');
 require_once('user.php');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 class Admin extends User {
-    public function __construct($nom , $prenom , $email , $password = null, $role = null) {
+    public function __construct($nom, $prenom, $email, $password = null, $role = null) {
         parent::__construct($nom, $prenom, $email, $password, $role);
-    }    
+    }
 
     private function getDbConnection() {
         return Database::getInstance()->getConnection();
@@ -22,7 +23,7 @@ class Admin extends User {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
-            throw new Exception("An error occurred while fetching users.");
+            throw new Exception("An error occurred while fetching students.");
         }
     }
 
@@ -34,18 +35,22 @@ class Admin extends User {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
-            throw new Exception("An error occurred while fetching users.");
+            throw new Exception("An error occurred while fetching teachers.");
         }
     }
 
-    public function toggleUserStatus($userId, $currentStatus) {
+    public function toggleUserStatus($userId, $newStatus) {
         $db = $this->getDbConnection();
         try {
-            $newStatus = $currentStatus ? 0 : 1;
             $stmt = $db->prepare("UPDATE users SET is_active = :newStatus WHERE user_id = :userId");
-            $stmt->bindParam(':newStatus', $newStatus);
-            $stmt->bindParam(':userId', $userId);
+            $stmt->bindParam(':newStatus', $newStatus, PDO::PARAM_INT);
+            $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
             $stmt->execute();
+            if (isset($_SESSION['user']) && $_SESSION['user']['id'] == $userId) {
+                $_SESSION['user']['etat'] = (int) $newStatus;
+                error_log("Session updated: User ID $userId, New Status: $newStatus");
+            }
+    
             return $newStatus;
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
@@ -78,9 +83,16 @@ class Admin extends User {
                     </button>
                     <form hx-post="../prosses/admin.php" hx-target="#user-status-badge-<?= $user['user_id']; ?>" hx-swap="innerHTML">
                         <input type="hidden" name="userId" value="<?= $user['user_id']; ?>">
-                        <input type="hidden" name="currentStatus" value="<?= (int)$user['is_active']; ?>" id="current-status-<?= $user['user_id']; ?>">
-                        <button type="submit" name="toggleStatus" class="btn btn-sm btn-outline-primary">
-                            Toggle Status
+                        <input type="hidden" name="newStatus" value="1">
+                        <button type="submit" name="activateUser" class="btn btn-sm btn-outline-success">
+                            Activate
+                        </button>
+                    </form>
+                    <form hx-post="../prosses/admin.php" hx-target="#user-status-badge-<?= $user['user_id']; ?>" hx-swap="innerHTML">
+                        <input type="hidden" name="userId" value="<?= $user['user_id']; ?>">
+                        <input type="hidden" name="newStatus" value="0">
+                        <button type="submit" name="deactivateUser" class="btn btn-sm btn-outline-danger">
+                            Deactivate
                         </button>
                     </form>
                 </td>
@@ -98,7 +110,8 @@ class Admin extends User {
                     courses.title,
                     courses.description,
                     categories.name AS category_name,
-                    GROUP_CONCAT(tags.name) AS tags
+                    GROUP_CONCAT(tags.name) AS tags,
+                    courses.status
                 FROM 
                     courses
                 LEFT JOIN 
@@ -129,23 +142,56 @@ class Admin extends User {
             throw new Exception("An error occurred while accepting the course.");
         }
     }
-    
 
+    public function rejectCourse($courseId) {
+        $db = $this->getDbConnection();
+        try {
+            $stmt = $db->prepare("UPDATE courses SET status = 'rejected' WHERE course_id = :courseId");
+            $stmt->bindParam(':courseId', $courseId, PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Database error: " . $e->getMessage());
+            throw new Exception("An error occurred while rejecting the course.");
+        }
+    }
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['toggleStatus'])) {
-    $userId = (int)$_POST['userId'];
-    $currentStatus = (int)$_POST['currentStatus'];
-
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $admin = new Admin("", "", "");
-    try {
-        $newStatus = $admin->toggleUserStatus($userId, $currentStatus);
-        $statusBadge = $newStatus ? "<span class='badge bg-success'>Active</span>" : "<span class='badge bg-danger'>Inactive</span>";
-        echo $statusBadge;
-        exit;
-    } catch (Exception $e) {
-        echo "<span class='text-danger'>Error: " . $e->getMessage() . "</span>";
-        exit;
+    if (isset($_POST['activateUser']) || isset($_POST['deactivateUser'])) {
+        $userId = (int)$_POST['userId'];
+        $newStatus = (int)$_POST['newStatus'];
+        try {
+            $admin->toggleUserStatus($userId, $newStatus);
+            $statusBadge = $newStatus ? "<span class='badge bg-success'>Active</span>" : "<span class='badge bg-danger'>Inactive</span>";
+            echo $statusBadge;
+            exit;
+        } catch (Exception $e) {
+            echo "<span class='text-danger'>Error: " . $e->getMessage() . "</span>";
+            exit;
+        }
+    }
+    if (isset($_POST['acceptCourse'])) {
+        $courseId = (int)$_POST['courseId'];
+        try {
+            $admin->acceptCourse($courseId);
+            echo "<span class='badge bg-success'>Accepted</span>";
+            exit;
+        } catch (Exception $e) {
+            echo "<span class='text-danger'>Error: " . $e->getMessage() . "</span>";
+            exit;
+        }
+    }
+    if (isset($_POST['rejectCourse'])) {
+        $courseId = (int)$_POST['courseId'];
+        try {
+            $admin->rejectCourse($courseId);
+            echo "<span class='badge bg-danger'>Rejected</span>";
+            exit;
+        } catch (Exception $e) {
+            echo "<span class='text-danger'>Error: " . $e->getMessage() . "</span>";
+            exit;
+        }
     }
 }
 ?>
