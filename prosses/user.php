@@ -27,12 +27,17 @@ class User {
     public function save() {
         $db = $this->getDbConnection();
         try {
-            $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (:username, :email, :password, :role)");
+            $stmt = $db->prepare("
+                INSERT INTO users (username, email, password_hash, role, is_active)
+                VALUES (:username, :email, :password, :role, :is_active)
+            ");
             $username = $this->nom . " " . $this->prenom;
+            $isActive = ($this->role === 'Enseignant') ? 0 : 1;
             $stmt->bindParam(':username', $username);
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':password', $this->passwordHash);
             $stmt->bindParam(':role', $this->role);
+            $stmt->bindParam(':is_active', $isActive);
             $stmt->execute();
             header('Location: ../pages/login.php');
             exit;
@@ -43,6 +48,7 @@ class User {
             exit;
         }
     }
+    
 
     public function signIn($email, $password) {
         $db = $this->getDbConnection();
@@ -51,7 +57,7 @@ class User {
             $stmt->bindParam(':email', $email);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
             if ($user && password_verify($password, $user['password_hash'])) {
                 $_SESSION['user'] = [
                     'id' => $user['user_id'],
@@ -60,12 +66,7 @@ class User {
                     'role' => $user['role'],
                     'etat' => $user['is_active']
                 ];
-                if ($_SESSION['user']['role'] === 'Enseignant') {
-                    $id = $_SESSION['user']['id'];
-                    $stmt = $db->prepare("UPDATE users SET is_active = 0 WHERE user_id = :id");
-                    $stmt->bindParam(':id', $id);
-                    $stmt->execute();
-                }
+    
                 header('Location: ../pages/index.php');
                 exit;
             } else {
@@ -80,15 +81,7 @@ class User {
             exit;
         }
     }
-
-    public function signOut() {
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            unset($_SESSION['user']);
-            session_destroy();
-        }
-        header('Location: ../pages/login.php');
-        exit;
-    }
+    
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {

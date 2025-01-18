@@ -196,22 +196,9 @@ $display = new Admin('', '', '');
                     <button class="btn btn-primary"><i class="fas fa-plus me-2"></i>Add Course</button>
                 </div>
                 <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card user-card">
-                            <div class="card-body">
-                                <h5 class="card-title">Mathematics</h5>
-                                <p class="card-text">Advanced calculus and algebra</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-primary">30 Students</span>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Add more course cards -->
+                    <?php
+                    $display->displayCourses();
+                    ?>
                 </div>
             </div>
 
@@ -227,25 +214,17 @@ $display = new Admin('', '', '');
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Teacher</th>
-                                        <th>Course</th>
-                                        <th>Schedule</th>
-                                        <th>Students</th>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                        <th>Email</th>
+                                        <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Jane Smith</td>
-                                        <td>Mathematics</td>
-                                        <td>Mon, Wed 10:00 AM</td>
-                                        <td>25</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <!-- Add more rows as needed -->
+                                <?php
+                                    $display->displayEtudient();
+                                    ?>
                                 </tbody>
                             </table>
                         </div>

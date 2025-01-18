@@ -27,6 +27,28 @@ class Admin extends User {
         }
     }
 
+    public function displayEtudient() {
+        $users = $this->getAllEtudients();
+        if (empty($users)) {
+            echo "<p>No users found.</p>";
+            return;
+        }
+        foreach ($users as $user) {
+            ?>
+            <tr id="">
+                <td><?= $user['username']; ?></td>
+                <td><?= $user['role']; ?></td>
+                <td><?= $user['email']; ?></td>
+                <td><?= $user['created_at']; ?></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+            <?php
+        }
+    }
+
     public function getAllTeachers() {
         $db = $this->getDbConnection();
         try {
@@ -46,11 +68,6 @@ class Admin extends User {
             $stmt->bindParam(':newStatus', $newStatus, PDO::PARAM_INT);
             $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
             $stmt->execute();
-            if (isset($_SESSION['user']) && $_SESSION['user']['id'] == $userId) {
-                $_SESSION['user']['etat'] = (int) $newStatus;
-                error_log("Session updated: User ID $userId, New Status: $newStatus");
-            }
-    
             return $newStatus;
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
@@ -128,6 +145,41 @@ class Admin extends User {
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
             throw new Exception("An error occurred while fetching courses.");
+        }
+    }
+
+    public function displayCourses() {
+        $courses = $this->getAllCourseDetails();
+        if (empty($courses)) {
+            echo "<p>No courses found.</p>";
+            return;
+        }
+        foreach ($courses as $course) {
+            ?>
+            <div class="col-md-4">
+                <div class="card user-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><?= $course['title']; ?></h5>
+                        <p class="card-text"><?= $course['description']; ?></p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary"><?= $course['category_name']; ?></span>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Tags: <?= $course['tags']; ?></small>
+                        </div>
+                        <div class="mt-2">
+                            <span class="badge <?= $course['status'] === 'accepted' ? 'bg-success' : 'bg-warning'; ?>">
+                                <?= ucfirst($course['status']); ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php
         }
     }
 

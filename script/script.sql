@@ -15,17 +15,19 @@ CREATE TABLE categories (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
-
 CREATE TABLE courses (
     course_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    content_url VARCHAR(255),
-    category_id INT,
-    teacher_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
+    course_type ENUM('video', 'document') NOT NULL,
+    video_url VARCHAR(255) DEFAULT NULL,
+    document_content TEXT DEFAULT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    category_id INT NOT NULL,
+    teacher_id INT NOT NULL
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (teacher_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE tags (
