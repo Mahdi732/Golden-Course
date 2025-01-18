@@ -149,37 +149,40 @@ class Admin extends User {
     }
 
     public function displayCourses() {
-        $courses = $this->getAllCourseDetails();
-        if (empty($courses)) {
-            echo "<p>No courses found.</p>";
-            return;
-        }
-        foreach ($courses as $course) {
-            ?>
-            <div class="col-md-4">
-                <div class="card user-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= $course['title']; ?></h5>
-                        <p class="card-text"><?= $course['description']; ?></p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-primary"><?= $course['category_name']; ?></span>
-                            <div>
-                                <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+        try {
+            $courses = $this->getAllCourseDetails();
+            if (empty($courses)) {
+                echo "<p>No courses found.</p>";
+                return;
+            }
+            foreach ($courses as $course) {
+                echo '
+                <div class="col-md-4">
+                    <div class="card user-card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">' . htmlspecialchars($course['title']) . '</h5>
+                            <p class="card-text">' . htmlspecialchars($course['description']) . '</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">' . htmlspecialchars($course['category_name']) . '</span>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Tags: ' . htmlspecialchars($course['tags']) . '</small>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge ' . ($course['status'] === 'accepted' ? 'bg-success' : 'bg-warning') . '">
+                                    ' . ucfirst($course['status']) . '
+                                </span>
                             </div>
                         </div>
-                        <div class="mt-2">
-                            <small class="text-muted">Tags: <?= $course['tags']; ?></small>
-                        </div>
-                        <div class="mt-2">
-                            <span class="badge <?= $course['status'] === 'accepted' ? 'bg-success' : 'bg-warning'; ?>">
-                                <?= ucfirst($course['status']); ?>
-                            </span>
-                        </div>
                     </div>
-                </div>
-            </div>
-            <?php
+                </div>';
+            }
+        } catch (Exception $e) {
+            echo "<p class='text-danger'>Error displaying courses: " . $e->getMessage() . "</p>";
         }
     }
 

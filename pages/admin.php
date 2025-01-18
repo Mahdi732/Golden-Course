@@ -180,7 +180,7 @@ $display = new Admin('', '', '');
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $display->displayUsers();
+                                    $display->displayEtudient();
                                     ?>
                                 </tbody>
                             </table>
@@ -189,16 +189,15 @@ $display = new Admin('', '', '');
                 </div>
             </div>
 
-            <!-- Courses Section -->
             <div id="courses" class="section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4>Courses Management</h4>
                     <button class="btn btn-primary"><i class="fas fa-plus me-2"></i>Add Course</button>
                 </div>
                 <div class="row g-4">
-                    <?php
+                <?php
                     $display->displayCourses();
-                    ?>
+                ?>
                 </div>
             </div>
 
@@ -223,7 +222,7 @@ $display = new Admin('', '', '');
                                 </thead>
                                 <tbody>
                                 <?php
-                                    $display->displayEtudient();
+                                    $display->displayUsers();
                                     ?>
                                 </tbody>
                             </table>
@@ -238,19 +237,26 @@ $display = new Admin('', '', '');
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function showSection(sectionId) {
-    // Hide all sections
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
     
-    // Show selected section
-    document.getElementById(sectionId).classList.add('active');
+    const selectedSection = document.getElementById(sectionId);
+    if (selectedSection) {
+        selectedSection.classList.add('active');
+    } else {
+        console.error("Section not found:", sectionId);
+    }
     
-    // Update active state in sidebar
     document.querySelectorAll('.sidebar .nav-link').forEach(link => {
         link.classList.remove('active');
     });
-    document.querySelector(`a[href="#${sectionId}"]`).classList.add('active');
+    const activeLink = document.querySelector(`a[href="#${sectionId}"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    } else {
+        console.error("Link not found for section:", sectionId);
+    }
 }
 </script>
 
