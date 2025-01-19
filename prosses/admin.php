@@ -126,9 +126,13 @@ class Admin extends User {
                     courses.course_id,
                     courses.title,
                     courses.description,
+                    courses.status,
+                    courses.course_type,
+                    courses.document_content,
+                    courses.video_url,
                     categories.name AS category_name,
-                    GROUP_CONCAT(tags.name) AS tags,
-                    courses.status
+                    GROUP_CONCAT(tags.name SEPARATOR ', ') AS tags,
+                    users.username AS teacher_name
                 FROM 
                     courses
                 LEFT JOIN 
@@ -137,52 +141,162 @@ class Admin extends User {
                     course_tags ON courses.course_id = course_tags.course_id
                 LEFT JOIN 
                     tags ON course_tags.tag_id = tags.tag_id
+                LEFT JOIN 
+                    users ON courses.teacher_id = users.user_id
                 GROUP BY 
-                    courses.course_id;
+                    courses.course_id
+                ORDER BY 
+                    courses.date_creation DESC
             ");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
+            echo "Database error: " . $e->getMessage();
             throw new Exception("An error occurred while fetching courses.");
         }
+    }
+
+    public function getStatusBadgeClass($status) {
+        return match($status) {
+            'accepted' => 'bg-success',
+            'rejected' => 'bg-danger',
+            'pending' => 'bg-warning',
+            default => 'bg-secondary'
+        };
     }
 
     public function displayCourses() {
         try {
             $courses = $this->getAllCourseDetails();
             if (empty($courses)) {
-                echo "<p>No courses found.</p>";
+                echo '<div class="alert alert-info">No courses found.</div>';
                 return;
             }
-            foreach ($courses as $course) {
-                echo '
-                <div class="col-md-4">
-                    <div class="card user-card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">' . htmlspecialchars($course['title']) . '</h5>
-                            <p class="card-text">' . htmlspecialchars($course['description']) . '</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-primary">' . htmlspecialchars($course['category_name']) . '</span>
-                                <div>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+            ?>
+            <div class="container-fluid py-4">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <?php foreach ($courses as $course): ?>
+                        <div class="col">
+                            <div class="card h-100 shadow-sm hover-shadow transition-all">
+                            <?php if ($course['video_url']): ?>
+                                    <div class="card-img-top position-relative">
+                                        <video 
+                                            class="w-100" 
+                                            style="height: 200px; object-fit: cover;"
+                                            controls
+                                            poster="path/to/your/default-thumbnail.jpg"
+                                        >
+                                            <source src="<?php echo $course['video_url']; ?>" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge <?php echo $this->getStatusBadgeClass($course['status']); ?>">
+                                                <?php echo $course['status']; ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="card-img-top position-relative bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <?php if ($course['document_content']): ?>
+                                            <div class="text-center">
+                                                <i class="fas fa-file-alt fa-3x text-primary mb-2"></i>
+                                                <div class="document-preview">
+                                                    <?php 
+                                                    $preview = substr(strip_tags($course['document_content']), 0, 100);
+                                                    echo $preview . (strlen($course['document_content']) > 100 ? '...' : '');
+                                                    ?>
+                                                </div>
+                                                <div class="position-absolute top-0 end-0 m-2">
+                                                    <span class="badge <?php echo $this->getStatusBadgeClass($course['status']); ?>">
+                                                        <?php echo $course['status']; ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="text-center text-muted">
+                                                <i class="fas fa-file-alt fa-3x mb-2"></i>
+                                                <p>No content available</p>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="<?php echo $course['profile_image'] ?? 'assets/default-avatar.png'; ?>" 
+                                             class="rounded-circle me-2" 
+                                             alt="Teacher profile"
+                                             width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-0"><?php echo $course['teacher_name']; ?></h6>
+                                            <small class="text-muted">Instructor</small>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="card-title mb-3"><?php echo $course['title']; ?></h5>
+                                    
+                                    <p class="card-text text-muted">
+                                        <?php echo $course['description'], 0, 120 . '...'; ?>
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <span class="badge bg-primary">
+                                            <?php echo $course['category_name']; ?>
+                                        </span>
+                                        <?php if ($course['tags']): ?>
+                                            <?php foreach (explode(' ', $course['tags']) as $tag): ?>
+                                                <span class="badge bg-light text-dark">
+                                                    <?php echo $tag; ?>
+                                                </span>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="course-details.php?id=<?php echo $course['course_id']; ?>" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            View Details
+                                        </a>
+                                        <div class="btn-group">
+                                            <button type="button" 
+                                                    class="btn btn-outline-secondary btn-sm" 
+                                                    onclick="editCourse(<?php echo $course['course_id']; ?>)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <?php if ($course['status'] !== 'accepted'): ?>
+                                                <button type="button" 
+                                                        class="btn btn-outline-success btn-sm"
+                                                        onclick="acceptCourse(<?php echo $course['course_id']; ?>)">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                            <button type="button" 
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    onclick="deleteCourse(<?php echo $course['course_id']; ?>)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mt-2">
-                                <small class="text-muted">Tags: ' . htmlspecialchars($course['tags']) . '</small>
-                            </div>
-                            <div class="mt-2">
-                                <span class="badge ' . ($course['status'] === 'accepted' ? 'bg-success' : 'bg-warning') . '">
-                                    ' . ucfirst($course['status']) . '
-                                </span>
-                            </div>
                         </div>
-                    </div>
-                </div>';
-            }
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <style>
+                .hover-shadow:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+                }
+                .transition-all {
+                    transition: all 0.3s ease;
+                }
+            </style>
+            <?php
         } catch (Exception $e) {
-            echo "<p class='text-danger'>Error displaying courses: " . $e->getMessage() . "</p>";
+            echo "<div class='alert alert-danger'>Error displaying courses: " . $e->getMessage() . "</div>";
         }
     }
 

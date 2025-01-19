@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['CreateCourseSub'])) {
             echo 'theres probleme whit your file video';
         }
 
-        $uploadDir = __DIR__ . '/../uploads/videos/';
+        $uploadDir = '../uploads/videos/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
