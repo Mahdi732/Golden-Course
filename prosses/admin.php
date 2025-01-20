@@ -334,6 +334,45 @@ class Admin extends User {
             $stmt->execute();
             header('Location: ../pages/admin.php');
     }
+
+    public function getGlobalStatistics() {
+        $db = $this->getDbConnection();
+        try {
+            $statistics = [];
+            $stmt = $db->query("SELECT COUNT(*) AS total_courses FROM courses");
+            $statistics['total_courses'] = $stmt->fetchColumn();
+            $stmt = $db->query("
+                SELECT categories.name AS category_name, COUNT(courses.course_id) AS course_count
+                FROM courses
+                INNER JOIN categories ON courses.category_id = categories.category_id
+                GROUP BY categories.name
+            ");
+            $statistics['courses_by_category'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $db->query("
+                SELECT courses.title, COUNT(enrollments.student_id) AS student_count
+                FROM enrollments
+                INNER JOIN courses ON enrollments.course_id = courses.course_id
+                GROUP BY courses.course_id
+                ORDER BY student_count DESC
+                LIMIT 1
+            ");
+            $statistics['course_with_most_students'] = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = $db->query("
+                SELECT users.username AS teacher_name, COUNT(enrollments.student_id) AS student_count
+                FROM enrollments
+                INNER JOIN courses ON enrollments.course_id = courses.course_id
+                INNER JOIN users ON courses.teacher_id = users.user_id
+                GROUP BY users.user_id
+                ORDER BY student_count DESC
+                LIMIT 3
+            ");
+            $statistics['top_3_teachers'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $statistics;
+        } catch (PDOException $e) {
+            error_log("Database error: " . $e->getMessage());
+            throw new Exception("An error occurred while fetching global statistics.");
+        }
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {

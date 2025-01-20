@@ -1,3 +1,22 @@
+<?php
+require_once '../prosses/coursedisplymanagement.php';
+
+if (!isset($_GET['course_id'])) {
+    die("Course ID is missing.");
+}
+$course_id = $_GET['course_id'];
+
+$coursManagement = new CoursManagement();
+$course = $coursManagement->getCourseDetailsById($course_id);
+
+if (!$course) {
+    die("Course not found.");
+}
+
+if (isset($_GET['course_id'])) {
+    $tag = $coursManagement->getCoursTags($course_id);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,15 +41,30 @@
     <script src="https://unpkg.com/htmx.org"></script>
 
 
-    <!-- Libraries Stylesheet -->
     <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
     <link href="./lib/animate/animate.min.css" rel="stylesheet">
 
-    <!-- Customized Bootstrap Stylesheet -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Template Stylesheet -->
     <link href="../css/style.css" rel="stylesheet">
+    <style>
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -107,36 +141,29 @@
             <div class="row g-5">
                 <div class="col-lg-8">
                     <!-- Blog Detail Start -->
-                    <div class="mb-5">
-                        <img class="img-fluid w-100 rounded mb-5" src="img/blog-1.jpg" alt="">
-                        <h1 class="mb-4">Diam dolor est labore duo ipsum clita sed et lorem tempor duo</h1>
-                        <p>Sadipscing labore amet rebum est et justo gubergren. Et eirmod ipsum sit diam ut
-                            magna lorem. Nonumy vero labore lorem sanctus rebum et lorem magna kasd, stet
-                            amet magna accusam consetetur eirmod. Kasd accusam sit ipsum sadipscing et at at
-                            sanctus et. Ipsum sit gubergren dolores et, consetetur justo invidunt at et
-                            aliquyam ut et vero clita. Diam sea sea no sed dolores diam nonumy, gubergren
-                            sit stet no diam kasd vero.</p>
-                        <p>Voluptua est takimata stet invidunt sed rebum nonumy stet, clita aliquyam dolores
-                            vero stet consetetur elitr takimata rebum sanctus. Sit sed accusam stet sit
-                            nonumy kasd diam dolores, sanctus lorem kasd duo dolor dolor vero sit et. Labore
-                            ipsum duo sanctus amet eos et. Consetetur no sed et aliquyam ipsum justo et,
-                            clita lorem sit vero amet amet est dolor elitr, stet et no diam sit. Dolor erat
-                            justo dolore sit invidunt.</p>
-                        <p>Diam dolor est labore duo invidunt ipsum clita et, sed et lorem voluptua tempor
-                            invidunt at est sanctus sanctus. Clita dolores sit kasd diam takimata justo diam
-                            lorem sed. Magna amet sed rebum eos. Clita no magna no dolor erat diam tempor
-                            rebum consetetur, sanctus labore sed nonumy diam lorem amet eirmod. No at tempor
-                            sea diam kasd, takimata ea nonumy elitr sadipscing gubergren erat. Gubergren at
-                            lorem invidunt sadipscing rebum sit amet ut ut, voluptua diam dolores at
-                            sadipscing stet. Clita dolor amet dolor ipsum vero ea ea eos.</p>
-                        <p>Voluptua est takimata stet invidunt sed rebum nonumy stet, clita aliquyam dolores
-                            vero stet consetetur elitr takimata rebum sanctus. Sit sed accusam stet sit
-                            nonumy kasd diam dolores, sanctus lorem kasd duo dolor dolor vero sit et. Labore
-                            ipsum duo sanctus amet eos et. Consetetur no sed et aliquyam ipsum justo et,
-                            clita lorem sit vero amet amet est dolor elitr, stet et no diam sit. Dolor erat
-                            justo dolore sit invidunt.</p>
+                    <div class="max-w-4xl mx-auto p-4">
+                        <div class="mb-8">
+                            <img class="w-full h-64 object-cover rounded-lg shadow-lg mb-6" src="img/blog-1.jpg" alt="">
+                            <h1 class="text-3xl font-bold text-gray-800 mb-4"><?php echo $course['title'] ?></h1>
+                            <h3 class="text-xl text-gray-600 mb-6"><?php echo $course['description'] ?></h3>
+                            
+                            <div class="w-full">
+                                <?php if ($course['course_type'] === 'video'): ?>
+                                    <div class="video-container bg-gray-100">
+                                        <iframe 
+                                            src="<?php echo $course['video_url'] ?>" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            allowfullscreen
+                                        ></iframe>
+                                    </div>
+                                <?php elseif ($course['course_type'] === 'document'): ?>
+                                    <div class="prose max-w-none bg-white p-6 rounded-lg shadow">
+                                        <p class="text-gray-700 leading-relaxed"><?php echo $course['document_content'] ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
-                    <!-- Blog Detail End -->
     
                     <!-- Comment List Start -->
                     <div class="mb-5">
@@ -235,9 +262,9 @@
                             <h3 class="mb-0">Course Tag</h3>
                         </div>
                         <div class="d-flex flex-wrap m-n1">
-                            <a href="" class="btn btn-light m-1">Design</a>
-                            <a href="" class="btn btn-light m-1">Development</a>
-                            <a href="" class="btn btn-light m-1">Marketing</a>
+                        <?php foreach ($tag as $tags) { ?>
+                            <a href="" class="btn btn-light m-1"><?php echo $tags['name'] ?></a>
+                        <?php } ?>
                         </div>
                     </div>
                     <div class="wow slideInUp" data-wow-delay="0.1s">

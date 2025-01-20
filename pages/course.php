@@ -185,12 +185,15 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                                     </div>
                                     <h4 class="mb-3"><?php echo $course['title']?></h4>
                                     <p><?php echo $course['description']?></p>
-                                    <div class="d-flex ">
-                                    <form action="../prosses/student.classes.php" method="POST">
-                                    <button type="submit" class="btn btn-light m-1">Design</a>
-                                    </form>
-                                    <a class="text-uppercase" href="course_detail.php?course_id=<?php echo $course['course_id']; ?>">Read More <i class="bi bi-arrow-right"></i></a>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <form action="../prosses/student.classes.php" method="POST" class="m-0">
+                                            <button type="submit" class="btn btn-primary m-1">Enroll</button>
+                                        </form>
+                                        <a class="text-uppercase text-decoration-none m-1" href="detailforcours.php?course_id=<?php echo $course['course_id']; ?>">
+                                            Read More <i class="bi bi-arrow-right"></i>
+                                        </a>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

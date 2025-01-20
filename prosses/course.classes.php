@@ -210,6 +210,8 @@ class TagManager {
         $stmt->bindParam(':tag_id', $tag_id);
         $stmt->execute();
     }
+
+    
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['CreateCourseSub'])) {

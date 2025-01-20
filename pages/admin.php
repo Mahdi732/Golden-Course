@@ -2,6 +2,13 @@
 session_start();
 require_once('../prosses/admin.php');
 $display = new Admin('', '', '');
+
+try {
+    $statistics = $display->getGlobalStatistics();
+} catch (Exception $e) {
+    echo "<p>Error: " . $e->getMessage() . "</p>";
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -134,28 +141,56 @@ $display = new Admin('', '', '');
 
             <!-- Dashboard Section -->
             <div id="dashboard" class="section active">
-                <div class="row g-4">
-                    <div class="col-md-4">
+                <div class="row g-3">
+                    <!-- Total Courses -->
+                    <div class="col-md-3">
                         <div class="card bg-primary text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Total Users</h5>
-                                <h2 class="mb-0">1,234</h2>
+                                <h5 class="card-title">Total Courses</h5>
+                                <h2 class="mb-0"><?php echo $statistics['total_courses']; ?></h2>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+
+                    <!-- Courses by Category -->
+                    <div class="col-md-3">
                         <div class="card bg-success text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Active Courses</h5>
-                                <h2 class="mb-0">56</h2>
+                                <h5 class="card-title">Courses by Category</h5>
+                                <ul class="list-unstyled mb-0">
+                                    <?php foreach ($statistics['courses_by_category'] as $category): ?>
+                                        <li><?php echo htmlspecialchars($category['category_name']) . ": " . $category['course_count']; ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+
+                    <!-- Course with Most Students -->
+                    <div class="col-md-3">
                         <div class="card bg-info text-white">
                             <div class="card-body">
-                                <h5 class="card-title">Teachers</h5>
-                                <h2 class="mb-0">89</h2>
+                                <h5 class="card-title">Most Popular Course</h5>
+                                <?php if (!empty($statistics['course_with_most_students'])): ?>
+                                    <p class="mb-0"><?php echo htmlspecialchars($statistics['course_with_most_students']['title']); ?></p>
+                                    <p class="mb-0"><?php echo $statistics['course_with_most_students']['student_count']; ?> students</p>
+                                <?php else: ?>
+                                    <p class="mb-0">No data available.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top 3 Teachers -->
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">Top 3 Teachers</h5>
+                                <ol class="mb-0">
+                                    <?php foreach ($statistics['top_3_teachers'] as $teacher): ?>
+                                        <li><?php echo htmlspecialchars($teacher['teacher_name']) . " (" . $teacher['student_count'] . " students)"; ?></li>
+                                    <?php endforeach; ?>
+                                </ol>
                             </div>
                         </div>
                     </div>
