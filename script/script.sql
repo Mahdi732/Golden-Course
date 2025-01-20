@@ -24,7 +24,8 @@ CREATE TABLE courses (
     document_content TEXT DEFAULT NULL,
     price DECIMAL(10, 2) NOT NULL,
     category_id INT NOT NULL,
-    teacher_id INT NOT NULL
+    teacher_id INT NOT NULL,
+    status	enum('active', 'inactive') DEFAULT 'rejected'
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(category_id),
     FOREIGN KEY (teacher_id) REFERENCES users(user_id)

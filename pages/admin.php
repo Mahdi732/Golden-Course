@@ -11,7 +11,9 @@ $display = new Admin('', '', '');
     <title>EduTech Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://unpkg.com/htmx.org"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <style>
         .sidebar {
             min-height: 100vh;
@@ -68,7 +70,7 @@ $display = new Admin('', '', '');
         <!-- Sidebar -->
         <div class="col-auto px-0 bg-white sidebar">
             <div class="p-3">
-                <a href="#" class="d-flex align-items-center mb-4 text-decoration-none">
+                <a href="index.php" class="d-flex align-items-center mb-4 text-decoration-none">
                     <i class="fas fa-graduation-cap fs-4 text-primary me-2"></i>
                     <span class="fs-4 text-dark">EduTech</span>
                 </a>

@@ -159,10 +159,9 @@ class Admin extends User {
 
     public function getStatusBadgeClass($status) {
         return match($status) {
-            'accepted' => 'bg-success',
-            'rejected' => 'bg-danger',
-            'pending' => 'bg-warning',
-            default => 'bg-secondary'
+            'active' => 'bg-success', 
+            'inactive' => 'bg-danger',
+            default => 'bg-secondary' 
         };
     }
 
@@ -179,7 +178,7 @@ class Admin extends User {
                     <?php foreach ($courses as $course): ?>
                         <div class="col">
                             <div class="card h-100 shadow-sm hover-shadow transition-all">
-                            <?php if ($course['video_url']): ?>
+                                <?php if ($course['video_url']): ?>
                                     <div class="card-img-top position-relative">
                                         <video 
                                             class="w-100" 
@@ -191,8 +190,10 @@ class Admin extends User {
                                             Your browser does not support the video tag.
                                         </video>
                                         <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge <?php echo $this->getStatusBadgeClass($course['status']); ?>">
-                                                <?php echo $course['status']; ?>
+                                            <span id="course-status-badge-<?= $course['course_id']; ?>">
+                                                <span class="badge <?php echo $this->getStatusBadgeClass($course['status']); ?>">
+                                                    <?php echo $course['status'] === 'active' ? 'Accepted' : 'Rejected'; ?>
+                                                </span>
                                             </span>
                                         </div>
                                     </div>
@@ -202,14 +203,12 @@ class Admin extends User {
                                             <div class="text-center">
                                                 <i class="fas fa-file-alt fa-3x text-primary mb-2"></i>
                                                 <div class="document-preview">
-                                                    <?php 
-                                                    $preview = substr(strip_tags($course['document_content']), 0, 100);
-                                                    echo $preview . (strlen($course['document_content']) > 100 ? '...' : '');
-                                                    ?>
                                                 </div>
                                                 <div class="position-absolute top-0 end-0 m-2">
-                                                    <span class="badge <?php echo $this->getStatusBadgeClass($course['status']); ?>">
-                                                        <?php echo $course['status']; ?>
+                                                    <span id="course-status-badge-<?= $course['course_id']; ?>">
+                                                        <span class="badge <?php echo $this->getStatusBadgeClass($course['status']); ?>">
+                                                            <?php echo $course['status'] === 'active' ? 'Accepted' : 'Rejected'; ?>
+                                                        </span>
                                                     </span>
                                                 </div>
                                             </div>
@@ -233,13 +232,13 @@ class Admin extends User {
                                             <small class="text-muted">Instructor</small>
                                         </div>
                                     </div>
-
+    
                                     <h5 class="card-title mb-3"><?php echo $course['title']; ?></h5>
                                     
                                     <p class="card-text text-muted">
                                         <?php echo $course['description'], 0, 120 . '...'; ?>
                                     </p>
-
+    
                                     <div class="mb-3">
                                         <span class="badge bg-primary">
                                             <?php echo $course['category_name']; ?>
@@ -252,7 +251,7 @@ class Admin extends User {
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </div>
-
+    
                                     <div class="d-flex justify-content-between align-items-center">
                                         <a href="course-details.php?id=<?php echo $course['course_id']; ?>" 
                                            class="btn btn-outline-primary btn-sm">
@@ -264,18 +263,21 @@ class Admin extends User {
                                                     onclick="editCourse(<?php echo $course['course_id']; ?>)">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <?php if ($course['status'] !== 'accepted'): ?>
-                                                <button type="button" 
-                                                        class="btn btn-outline-success btn-sm"
-                                                        onclick="acceptCourse(<?php echo $course['course_id']; ?>)">
-                                                    <i class="fas fa-check"></i>
+                                            <form hx-post="../prosses/admin.php" hx-target="#course-status-badge-<?= $course['course_id']; ?>" hx-swap="innerHTML">
+                                                <input type="hidden" name="courseId" value="<?= $course['course_id']; ?>">
+                                                <input type="hidden" name="acceptCourse" value="1">
+                                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-check"></i> Accept
                                                 </button>
-                                            <?php endif; ?>
-                                            <button type="button" 
-                                                    class="btn btn-outline-danger btn-sm"
-                                                    onclick="deleteCourse(<?php echo $course['course_id']; ?>)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            </form>
+    
+                                            <form hx-post="../prosses/admin.php" hx-target="#course-status-badge-<?= $course['course_id']; ?>" hx-swap="innerHTML">
+                                                <input type="hidden" name="courseId" value="<?= $course['course_id']; ?>">
+                                                <input type="hidden" name="rejectCourse" value="1">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-times"></i> Reject
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -284,7 +286,7 @@ class Admin extends User {
                     <?php endforeach; ?>
                 </div>
             </div>
-
+    
             <style>
                 .hover-shadow:hover {
                     transform: translateY(-5px);
@@ -300,10 +302,11 @@ class Admin extends User {
         }
     }
 
+    
     public function acceptCourse($courseId) {
         $db = $this->getDbConnection();
         try {
-            $stmt = $db->prepare("UPDATE courses SET status = 'accepted' WHERE course_id = :courseId");
+            $stmt = $db->prepare("UPDATE courses SET status = 'active' WHERE course_id = :courseId");
             $stmt->bindParam(':courseId', $courseId, PDO::PARAM_INT);
             $stmt->execute();
         } catch (PDOException $e) {
@@ -311,11 +314,11 @@ class Admin extends User {
             throw new Exception("An error occurred while accepting the course.");
         }
     }
-
+    
     public function rejectCourse($courseId) {
         $db = $this->getDbConnection();
         try {
-            $stmt = $db->prepare("UPDATE courses SET status = 'rejected' WHERE course_id = :courseId");
+            $stmt = $db->prepare("UPDATE courses SET status = 'inactive' WHERE course_id = :courseId");
             $stmt->bindParam(':courseId', $courseId, PDO::PARAM_INT);
             $stmt->execute();
         } catch (PDOException $e) {
@@ -327,6 +330,7 @@ class Admin extends User {
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $admin = new Admin("", "", "");
+
     if (isset($_POST['activateUser']) || isset($_POST['deactivateUser'])) {
         $userId = (int)$_POST['userId'];
         $newStatus = (int)$_POST['newStatus'];
@@ -340,6 +344,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
     }
+
     if (isset($_POST['acceptCourse'])) {
         $courseId = (int)$_POST['courseId'];
         try {
@@ -351,6 +356,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
     }
+
     if (isset($_POST['rejectCourse'])) {
         $courseId = (int)$_POST['courseId'];
         try {
