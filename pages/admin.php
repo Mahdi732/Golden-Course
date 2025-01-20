@@ -9,6 +9,7 @@ $display = new Admin('', '', '');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduTech Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
@@ -194,7 +195,29 @@ $display = new Admin('', '', '');
             <div id="courses" class="section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4>Courses Management</h4>
-                    <button class="btn btn-primary"><i class="fas fa-plus me-2"></i>Add Course</button>
+                    <button id="btn-categorie" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Add Course</button>
+                    <div id="form-categories" class="absolute z-50 bg-gray-300 p-8 rounded-lg shadow-md w-full max-w-md hidden top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800">Create Category</h2>
+                        <form action="../prosses/admin.php" method="POST">
+                            <div class="mb-4">
+                                <label for="name" class="block text-gray-700 text-sm font-medium mb-2">Category Name</label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name_cate" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter category name"
+                                    required
+                                >
+                            </div>
+                            <button 
+                                type="submit" 
+                                class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                            >
+                                Create Category
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <div class="row g-4">
                 <?php
@@ -238,6 +261,29 @@ $display = new Admin('', '', '');
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    document.getElementById('btn-categorie').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const formElement = document.getElementById('form-categories');
+    formElement.classList.remove('hidden');
+
+    const formData = new FormData(this);
+    const categoryName = formData.get('name');
+
+    if (!categoryName.trim()) {
+        alert('Please enter a category name');
+        return;
+    }
+
+    const category = {
+        name: categoryName.trim()
+    };
+
+    console.log('New Category:', category);
+    alert('Category created successfully!');
+    this.reset();
+});
+
 function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
@@ -260,6 +306,7 @@ function showSection(sectionId) {
         console.error("Link not found for section:", sectionId);
     }
 }
+
 </script>
 
 </body>

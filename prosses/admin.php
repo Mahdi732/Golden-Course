@@ -326,6 +326,14 @@ class Admin extends User {
             throw new Exception("An error occurred while rejecting the course.");
         }
     }
+
+    public function addCategorie($name) {
+        $db = $this->getDbConnection();
+            $stmt = $db->prepare("INSERT INTO categories (name) VALUES (:name)");
+            $stmt->bindParam(':name', $name);
+            $stmt->execute();
+            header('Location: ../pages/admin.php');
+    }
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -347,26 +355,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (isset($_POST['acceptCourse'])) {
         $courseId = (int)$_POST['courseId'];
-        try {
             $admin->acceptCourse($courseId);
             echo "<span class='badge bg-success'>Accepted</span>";
-            exit;
-        } catch (Exception $e) {
-            echo "<span class='text-danger'>Error: " . $e->getMessage() . "</span>";
-            exit;
-        }
     }
 
     if (isset($_POST['rejectCourse'])) {
         $courseId = (int)$_POST['courseId'];
-        try {
             $admin->rejectCourse($courseId);
             echo "<span class='badge bg-danger'>Rejected</span>";
-            exit;
-        } catch (Exception $e) {
-            echo "<span class='text-danger'>Error: " . $e->getMessage() . "</span>";
-            exit;
-        }
     }
+
+    if (isset($_POST['name_cate'])) {
+        $name_categorie = $_POST['name_cate'];
+        $admin->addCategorie($name_categorie);
+    }
+
 }
 ?>

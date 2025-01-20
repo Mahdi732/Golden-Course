@@ -61,7 +61,35 @@ class VideoCours extends Cours {
     public static function afficherCours() {
         $db = Cours::getDbConnection();
         try {
-            $sql = "SELECT * FROM courses WHERE course_type = 'video'";
+            $sql = "SELECT 
+                    courses.course_id,
+                    courses.title,
+                    courses.description,
+                    courses.status,
+                    courses.course_type,
+                    courses.document_content,
+                    courses.video_url,
+                    courses.date_creation,
+                    categories.name AS category_name,
+                    GROUP_CONCAT(tags.name SEPARATOR ', ') AS tags,
+                    users.username AS teacher_name
+                FROM 
+                    courses
+                LEFT JOIN 
+                    categories ON courses.category_id = categories.category_id
+                LEFT JOIN 
+                    course_tags ON courses.course_id = course_tags.course_id
+                LEFT JOIN 
+                    tags ON course_tags.tag_id = tags.tag_id
+                LEFT JOIN 
+                    users ON courses.teacher_id = users.user_id
+                WHERE 
+                    courses.course_type = 'video'
+                GROUP BY 
+                    courses.course_id
+                ORDER BY 
+                    courses.date_creation DESC";
+
             $stmt = $db->prepare($sql);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -104,7 +132,35 @@ class DocumentCours extends Cours {
         $db = Cours::getDbConnection();
 
         try {
-            $sql = "SELECT * FROM courses WHERE course_type = 'document'";
+            $sql = "SELECT 
+                    courses.course_id,
+                    courses.title,
+                    courses.description,
+                    courses.status,
+                    courses.course_type,
+                    courses.document_content,
+                    courses.video_url,
+                    courses.date_creation,
+                    categories.name AS category_name,
+                    GROUP_CONCAT(tags.name SEPARATOR ', ') AS tags,
+                    users.username AS teacher_name
+                FROM 
+                    courses
+                LEFT JOIN 
+                    categories ON courses.category_id = categories.category_id
+                LEFT JOIN 
+                    course_tags ON courses.course_id = course_tags.course_id
+                LEFT JOIN 
+                    tags ON course_tags.tag_id = tags.tag_id
+                LEFT JOIN 
+                    users ON courses.teacher_id = users.user_id
+                WHERE 
+                    courses.course_type = 'document'
+                GROUP BY 
+                    courses.course_id
+                ORDER BY 
+                    courses.date_creation DESC";
+
             $stmt = $db->prepare($sql);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -231,5 +287,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['CreateCourseSub'])) {
             echo 'Error adding document course: ' . $e->getMessage();
         }
     } else {
-        echo 'Invalid course type.';
+        echo '.......................................................................................................................................';
     }
