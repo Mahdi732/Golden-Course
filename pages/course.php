@@ -13,7 +13,6 @@ $totalCourses = $coursManagement->getTotalCourses();
 $totalPages = ceil($totalCourses / $limit);
 
 $isHtmxRequest = isset($_SERVER['HTTP_HX_REQUEST']);
-
 if ($isHtmxRequest) {
     ?>
     <div id="course-list" class="row g-5">
