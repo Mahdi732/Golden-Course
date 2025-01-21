@@ -1,13 +1,63 @@
 <?php
 session_start();
 require_once('../prosses/course.classes.php');
-$videoCourses = VideoCours::afficherCours();
+require_once('../prosses/coursedisplymanagement.php');
 
-$documentCourses = DocumentCours::afficherCours();
+$limit = 10;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1; 
+$offset = ($page - 1) * $limit;
 
-$allCourses = array_merge($videoCourses, $documentCourses);
+$coursManagement = new CoursManagement();
+$allCourses = $coursManagement->getPaginatedCourses($offset, $limit);
+$totalCourses = $coursManagement->getTotalCourses();
+$totalPages = ceil($totalCourses / $limit);
 
+$isHtmxRequest = isset($_SERVER['HTTP_HX_REQUEST']);
+
+if ($isHtmxRequest) {
+    ?>
+    <div id="course-list" class="row g-5">
+        <?php
+        if (!empty($allCourses)) {
+            foreach ($allCourses as $course) {
+                ?>
+                <div class="col-md-6 wow slideInUp" data-wow-delay="0.6s">
+                    <div class="blog-item bg-light rounded overflow-hidden">
+                        <div class="blog-img position-relative overflow-hidden">
+                            <img class="img-fluid" src="img/blog-1.jpg" alt="">
+                            <a class="position-absolute top-0 start-0 bg-primary text-white rounded-end mt-5 py-2 px-4" href="">Web Design</a>
+                        </div>
+                        <div class="p-4">
+                            <div class="d-flex mb-3">
+                                <small class="me-3"><i class="far fa-user text-primary me-2"></i><?php echo $course['teacher_name']?></small>
+                                <small><i class="far fa-calendar-alt text-primary me-2"></i><?php echo $course['date_creation']?></small>
+                            </div>
+                            <h4 class="mb-3"><?php echo $course['title']?></h4>
+                            <p><?php echo $course['description']?></p>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <form action="../prosses/student.classes.php" method="POST" class="m-0">
+                                    <button type="submit" class="btn btn-primary m-1">Enroll</button>
+                                </form>
+                                <a class="text-uppercase text-decoration-none m-1" href="detailforcours.php?course_id=<?php echo $course['course_id']; ?>">
+                                    Read More <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            }
+        } else {
+            echo '<div class="col-12"><p>No courses found.</p></div>';
+        }
+        ?>
+    </div>
+    <?php
+    exit;
+}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,8 +80,6 @@ $allCourses = array_merge($videoCourses, $documentCourses);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org"></script>
-
-
     <!-- Libraries Stylesheet -->
     <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
     <link href="./lib/animate/animate.min.css" rel="stylesheet">
@@ -45,11 +93,10 @@ $allCourses = array_merge($videoCourses, $documentCourses);
 
 <body>
     <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner"></div>
-    </div>
+    </div> -->
     <!-- Spinner End -->
-
 
     <!-- Topbar Start -->
     <div class="container-fluid bg-dark px-5 d-none d-lg-block">
@@ -74,10 +121,9 @@ $allCourses = array_merge($videoCourses, $documentCourses);
     </div>
     <!-- Topbar End -->
 
-
     <!-- Navbar Start -->
     <div class="container-fluid position-relative p-0">
-    <nav class="navbar navbar-expand-lg navbar-dark px-5 py-3 py-lg-0">
+        <nav class="navbar navbar-expand-lg navbar-dark px-5 py-3 py-lg-0">
             <a href="index.php" class="navbar-brand p-0">
                 <h1 class="m-0"><i class="fa fa-book me-2"></i>EduTech</h1>
             </a>
@@ -94,7 +140,7 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                             <a href="course.php" class="dropdown-item">Course</a>
                             <a href="price.php" class="dropdown-item">Abonement</a>
                         </div>
-                    </div> 
+                    </div>
                 </div>
                 <?php
                 if (isset($_SESSION['user']) && $_SESSION['user']['role'] === "Admin") {
@@ -110,11 +156,11 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                                 </a>
                         </div>';
                 } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
-                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"])) {
+                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"]) && $_SESSION["user"]["etat"] === 0) {
                         echo 'You Are Not Active';
-                    }else{
+                    } else {
                         echo '<div class="d-flex align-items-center">
-                                <a href="etudiant.php" class="d-flex align-items-center " >
+                                <a href="teacher.php" class="d-flex align-items-center " >
                                     <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                                 </a>
                         </div>';
@@ -142,7 +188,6 @@ $allCourses = array_merge($videoCourses, $documentCourses);
     </div>
     <!-- Navbar End -->
 
-
     <!-- Full Screen Search Start -->
     <div class="modal fade" id="searchModal" tabindex="-1">
         <div class="modal-dialog modal-fullscreen">
@@ -161,16 +206,16 @@ $allCourses = array_merge($videoCourses, $documentCourses);
     </div>
     <!-- Full Screen Search End -->
 
-
     <!-- Blog Start -->
     <div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
         <div class="container py-5">
             <div class="row g-5">
                 <!-- Blog list Start -->
                 <div class="col-lg-8">
-                    <div class="row g-5">
+                    <div id="course-list" class="row g-5">
                         <?php
-                        foreach ($allCourses as $course) {
+                        if (!empty($allCourses)) {
+                            foreach ($allCourses as $course) {
                         ?>
                         <div class="col-md-6 wow slideInUp" data-wow-delay="0.6s">
                             <div class="blog-item bg-light rounded overflow-hidden">
@@ -193,39 +238,42 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                                             Read More <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                         <?php
+                            }
+                        } else {
+                            echo '<div class="col-12"><p>No courses found.</p></div>';
                         }
                         ?>
-                        <div class="col-12 wow slideInUp" data-wow-delay="0.1s">
-                            <nav aria-label="Page navigation">
-                              <ul class="pagination pagination-lg m-0">
-                                <li class="page-item disabled">
-                                  <a class="page-link rounded-0" href="#" aria-label="Previous">
-                                    <span aria-hidden="true"><i class="bi bi-arrow-left"></i></span>
-                                  </a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                  <a class="page-link rounded-0" href="#" aria-label="Next">
-                                    <span aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
-                                  </a>
-                                </li>
-                              </ul>
-                            </nav>
-                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="col-12 wow slideInUp" data-wow-delay="0.1s">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-lg m-0">
+                                <?php
+                                for ($i = 1; $i <= $totalPages; $i++) {
+                                    $activeClass = ($i === $page) ? 'active' : '';
+                                    echo '
+                                    <li class="page-item ' . $activeClass . '">
+                                        <a class="page-link" 
+                                           hx-get="course.php?page=' . $i . '" 
+                                           hx-target="#course-list" 
+                                           hx-swap="innerHTML" 
+                                           hx-push-url="true">' . $i . '</a>
+                                    </li>';
+                                }
+                                ?>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
                 <!-- Blog list End -->
-    
+
                 <!-- Sidebar Start -->
                 <div class="col-lg-4">
-                    <!-- Search Form Start -->
                     <div class="mb-5 wow slideInUp" data-wow-delay="0.1s">
                         <div class="input-group">
                             <input type="text" class="form-control p-3" placeholder="Keyword">
@@ -233,7 +281,7 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                         </div>
                     </div>
                     <!-- Search Form End -->
-    
+
                     <!-- Category Start -->
                     <div class="mb-5 wow slideInUp" data-wow-delay="0.1s">
                         <div class="section-title section-title-sm position-relative pb-3 mb-4">
@@ -247,13 +295,13 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                             <a class="h5 fw-semi-bold bg-light rounded py-2 px-3 mb-2" href="#"><i class="bi bi-arrow-right me-2"></i>Email Marketing</a>
                         </div>
                     </div>
-    
+
                     <!-- Image Start -->
                     <div class="mb-5 wow slideInUp" data-wow-delay="0.1s">
                         <img src="img/blog-1.jpg" alt="" class="img-fluid rounded">
                     </div>
                     <!-- Image End -->
-    
+
                     <!-- Tags Start -->
                     <div class="mb-5 wow slideInUp" data-wow-delay="0.1s">
                         <div class="section-title section-title-sm position-relative pb-3 mb-4">
@@ -275,7 +323,7 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                         </div>
                     </div>
                     <!-- Tags End -->
-    
+
                     <!-- Plain Text Start -->
                     <div class="wow slideInUp" data-wow-delay="0.1s">
                         <div class="section-title section-title-sm position-relative pb-3 mb-4">
@@ -286,16 +334,10 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                             <a href="" class="btn btn-primary py-2 px-4">Read More</a>
                         </div>
                     </div>
-                    <!-- Plain Text End -->
                 </div>
-                <!-- Sidebar End -->
             </div>
         </div>
     </div>
-    <!-- Blog End -->
-
-
-    <!-- Vendor Start -->
     <div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
         <div class="container py-5 mb-5">
             <div class="bg-white">
@@ -313,10 +355,6 @@ $allCourses = array_merge($videoCourses, $documentCourses);
             </div>
         </div>
     </div>
-    <!-- Vendor End -->
-    
-
-    <!-- Footer Start -->
     <div class="container-fluid bg-dark text-light mt-5 wow fadeInUp" data-wow-delay="0.1s">
         <div class="container">
             <div class="row gx-5">
@@ -397,17 +435,12 @@ $allCourses = array_merge($videoCourses, $documentCourses);
                     <div class="d-flex align-items-center justify-content-center" style="height: 75px;">
                         <p class="mb-0">&copy; <a class="text-white border-bottom" href="#">Your Site Name</a>. All Rights Reserved. 
 						
-						<!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
 						Designed by <a class="text-white border-bottom" href="https://htmlcodex.com">HTML Codex</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Footer End -->
-
-
-    <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded back-to-top"><i class="bi bi-arrow-up"></i></a>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

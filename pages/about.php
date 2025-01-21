@@ -1,3 +1,8 @@
+<?php
+session_start();
+require_once('../prosses/user.php');
+require_once('../prosses/admin.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -97,11 +102,11 @@
                                 </a>
                         </div>';
                 } elseif (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'Enseignant') {
-                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"])) {
+                    if (isset($_SESSION["user"]) && isset($_SESSION["user"]["etat"]) && $_SESSION["user"]["etat"] === 0) {
                         echo 'You Are Not Active';
                     }else{
                         echo '<div class="d-flex align-items-center">
-                                <a href="etudiant.php" class="d-flex align-items-center " >
+                                <a href="teacher.php" class="d-flex align-items-center " >
                                     <img src="https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_1280.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px;">
                                 </a>
                         </div>';

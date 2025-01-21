@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Course Details</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div x-data="{
+        activeTab: 'overview',
+        showMore: false,
+        progress: 85,
+        videoPlaying: false,
+        currentSection: null,
+        isSticky: false
+    }" 
+    x-init="window.addEventListener('scroll', () => isSticky = window.pageYOffset > 100)"
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Premium Course Header -->
+        <div class="relative bg-white rounded-2xl shadow-xl overflow-hidden mb-8 transform transition-all duration-300 hover:shadow-2xl">
+            <div class="relative h-80 lg:h-96">
+                <img src="/api/placeholder/1200/400" alt="Course cover" class="w-full h-full object-cover transform transition-transform duration-700 hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+                
+                <!-- Video Preview Button -->
+                <button @click="videoPlaying = true" 
+                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md rounded-full p-6 hover:bg-white/30 transition-all duration-300">
+                    <i class="fas fa-play text-white text-3xl"></i>
+                </button>
+
+                <!-- Course Info Overlay -->
+                <div class="absolute bottom-0 left-0 p-8 w-full">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="bg-blue-600 text-xs font-semibold px-4 py-1.5 rounded-full text-white">BESTSELLER</span>
+                        <span class="bg-purple-600 text-xs font-semibold px-4 py-1.5 rounded-full text-white">Web Development</span>
+                    </div>
+                    <h1 class="text-4xl font-bold text-white mb-4 leading-tight">Advanced Web Development Masterclass 2025</h1>
+                    <div class="flex flex-wrap items-center gap-6 text-white">
+                        <div class="flex items-center">
+                            <div class="flex text-yellow-400 mr-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="font-medium">4.8</span>
+                            <span class="text-gray-300 ml-1">(2.4k reviews)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-users mr-2"></i>
+                            <span>15,234 enrolled</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Updated January 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2">
+                <!-- Premium Navigation Tabs -->
+                <div class="bg-white rounded-xl shadow-lg mb-6 p-1"
+                     :class="{ 'fixed top-4 left-4 right-4 lg:max-w-[66%] z-50 transition-all duration-300': isSticky }">
+                    <nav class="flex space-x-2">
+                        <template x-for="tab in ['overview', 'curriculum', 'reviews']">
+                            <button @click="activeTab = tab" 
+                                    :class="{
+                                        'bg-blue-600 text-white': activeTab === tab,
+                                        'hover:bg-gray-100': activeTab !== tab
+                                    }"
+                                    class="flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 capitalize">
+                                <span x-text="tab"></span>
+                            </button>
+                        </template>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <!-- Overview Tab -->
+                    <div x-show="activeTab === 'overview'" x-transition>
+                        <div class="space-y-8">
+                            <!-- Course Progress -->
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium">Your Progress</span>
+                                    <span class="text-blue-600 font-medium" x-text="`${progress}%`"></span>
+                                </div>
+                                <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-600 rounded-full transition-all duration-500"
+                                         :style="`width: ${progress}%`"></div>
+                                </div>
+                            </div>
+
+                            <!-- What You'll Learn -->
+                            <div>
+                                <h2 class="text-2xl font-bold mb-6">What you'll learn</h2>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <template x-for="skill in [
+                                        'Master Modern JavaScript (ES6+)',
+                                        'Build Full-Stack Applications',
+                                        'Learn React.js & Next.js',
+                                        'Deploy to Cloud Platforms',
+                                        'Implement Authentication',
+                                        'Master API Development'
+                                    ]">
+                                        <div class="flex items-start space-x-3 p-4 rounded-lg bg-gray-50">
+                                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                            <span x-text="skill" class="text-gray-700"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Course Description -->
+                            <div>
+                                <h2 class="text-2xl font-bold mb-4">Course Description</h2>
+                                <div class="prose max-w-none">
+                                    <p class="text-gray-600 leading-relaxed">
+                                        Embark on a transformative journey into modern web development. This comprehensive masterclass 
+                                        combines cutting-edge technologies with practical, real-world projects to ensure you're 
+                                        job-ready and confident in your skills.
+                                    </p>
+                                    <div x-show="showMore" x-transition>
+                                        <p class="text-gray-600 leading-relaxed mt-4">
+                                            You'll start with the fundamentals and progressively move to advanced concepts, 
+                                            building fully functional web applications along the way. Our project-based 
+                                            approach ensures you're not just learning theory, but applying your knowledge 
+                                            to real-world scenarios.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button @click="showMore = !showMore" 
+                                        class="mt-4 text-blue-600 font-medium hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg px-4 py-2 transition-all duration-200">
+                                    <span x-text="showMore ? 'Show less' : 'Show more'"></span>
+                                    <i class="fas" :class="showMore ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Curriculum Tab -->
+                    <div x-show="activeTab === 'curriculum'" x-transition class="space-y-4">
+                        <template x-for="(section, index) in [
+                            { title: 'Getting Started', duration: '2.5 hours', lectures: 12 },
+                            { title: 'JavaScript Fundamentals', duration: '4 hours', lectures: 20 },
+                            { title: 'Advanced JavaScript Concepts', duration: '5 hours', lectures: 15 },
+                            { title: 'Building Real Projects', duration: '8 hours', lectures: 25 }
+                        ]">
+                            <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200">
+                                <button @click="currentSection = currentSection === index ? null : index"
+                                        class="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors duration-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <i class="fas fa-play-circle text-blue-600"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <h3 class="font-medium" x-text="section.title"></h3>
+                                            <p class="text-sm text-gray-500">
+                                                <span x-text="`${section.lectures} lectures`"></span>
+                                                <span class="mx-2">•</span>
+                                                <span x-text="section.duration"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <i class="fas transition-transform duration-200"
+                                       :class="currentSection === index ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                </button>
+                                
+                                <div x-show="currentSection === index" 
+                                     x-transition
+                                     class="border-t border-gray-200 divide-y divide-gray-200">
+                                    <template x-for="i in 3">
+                                        <div class="px-6 py-4 bg-gray-50 flex items-center justify-between">
+                                            <div class="flex items-center space-x-4">
+                                                <i class="fas fa-play text-gray-400"></i>
+                                                <span x-text="`Lecture ${i}`"></span>
+                                            </div>
+                                            <span class="text-sm text-gray-500">15:00</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div x-show="activeTab === 'reviews'" x-transition class="space-y-8">
+                        <!-- Reviews Summary -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div class="text-center md:text-left">
+                                    <div class="text-5xl font-bold text-blue-600">4.8</div>
+                                    <div class="flex text-yellow-400 justify-center md:justify-start mt-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <div class="text-gray-500 mt-1">Course Rating</div>
+                                </div>
+                                <div class="space-y-2">
+                                    <template x-for="rating in [5,4,3,2,1]">
+                                        <div class="flex items-center">
+                                            <span class="w-12 text-sm text-gray-600" x-text="`${rating} stars`"></span>
+                                            <div class="flex-1 h-2 mx-2 bg-gray-200 rounded-full overflow-hidden">
+                                                <div class="h-full bg-yellow-400 rounded-full"
+                                                     :style="`width: ${100 - (rating * 5)}%`"></div>
+                                            </div>
+                                            <span class="w-12 text-sm text-gray-600" x-text="`${100 - (rating * 5)}%`"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Individual Reviews -->
+                        <template x-for="review in [
+                            { name: 'Sarah Johnson', rating: 5, date: '2 days ago', text: 'This course exceeded all my expectations. The instructor explains complex concepts clearly and the projects are both challenging and practical.' },
+                            { name: 'Michael Chen', rating: 5, date: '1 week ago', text: 'Incredible value for money. I went from basic JavaScript knowledge to building full-stack applications. The community support is amazing too.' }
+                        ]">
+                            <div class="border-b border-gray-200 pb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium"
+                                             x-text="review.name.charAt(0)"></div>
+                                        <div class="ml-4">
+                                            <h4 class="font-medium" x-text="review.name"></h4>
+                                            <div class="flex items-center">
+                                                <div class="flex text-yellow-400">
+                                                    <template x-for="i in review.rating">
+                                                        <i class="fas fa-star"></i>
+                                                    </template>
+                                                </div>
+                                                <span class="text-gray-500 text-sm ml-2" x-text="review.date"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-gray-500">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                <p class="text-gray-600" x-text="review.text"></p>
+                                <div class="flex items-center mt-4 space-x-4">
+                                    <button class="flex items-center text-gray-500 hover:text-blue-600 transition-colors duration-200">
+                                        <i class="far fa-thumbs-up mr-2"></i>
+                                        <span>Helpful</span>
+                                    </button>
+                                    <button class="text-gray-500 hover:text-blue-600 transition-colors duration-200">
+                                        <span>Reply</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Enhanced Course Info Card -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-8">
+                    <!-- Preview Video -->
+                    <div class="relative h-48">
+                        <img src="/api/placeholder/400/200" alt="Course preview" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <button class="bg-white/20 backdrop-blur-md rounded-full p-4 hover:bg-white/30 transition-all duration-300">
+                                <i class="fas fa-play text-white text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Section -->
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <span class="text-4xl font-bold text-gray-900">$99.99</span>
+                                <span class="text-lg text-gray-500 line-through ml-2">$199.99</span>
+                            </div>
+                            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-medium">50% OFF</span>
+                        </div>
+
+                        <!-- Time-limited Offer -->
+                        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                            <div class="text-sm text-gray-600 mb-2">Special offer ends in:</div>
+                            <div class="grid grid-cols-4 gap-2 text-center">
+                                <div class="bg-gray-800 text-white rounded-lg p-2">
+                                    <div class="text-xl font-bold">23</div>
+                                    <div class="text-xs">Hours</div>
+                                </div>
+                                <div class="bg-gray-800 text-white rounded-lg p-2">
+                                    <div class="text-xl font-bold">45</div>
+                                    <div class="text-xs">Minutes</div>
+                                </div>
+                                <div class="bg-gray-800 text-white rounded-lg p-2">
+                                    <div class="text-xl font-bold">19</div>
+                                    <div class="text-xs">Seconds</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-4">
+                            <button class="w-full bg-blue-600 text-white py-4 rounded-xl font-medium hover:bg-blue-700 transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center">
+                                <i class="fas fa-shopping-cart mr-2"></i>
+                                Enroll Now
+                            </button>
+                            <button class="w-full bg-gray-50 text-gray-700 py-4 rounded-xl font-medium hover:bg-gray-100 transition-all duration-200">
+                                Try Free Preview
+                            </button>
+                        </div>
+
+                        <!-- Course Features -->
+                        <div class="mt-6 space-y-4">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-infinity text-blue-600"></i>
+                                </div>
+                                <span class="ml-3 text-gray-600">Full lifetime access</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-mobile-alt text-blue-600"></i>
+                                </div>
+                                <span class="ml-3 text-gray-600">Access on mobile and TV</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-certificate text-blue-600"></i>
+                                </div>
+                                <span class="ml-3 text-gray-600">Certificate of completion</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-code text-blue-600"></i>
+                                </div>
+                                <span class="ml-3 text-gray-600">20+ coding exercises</span>
+                            </div>
+                        </div>
+
+                        <!-- Money Back Guarantee -->
+                        <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-green-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="font-medium text-gray-900">30-Day Money-Back Guarantee</h4>
+                                    <p class="text-sm text-gray-600">Full refund if you're not satisfied</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share Course -->
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="flex items-center justify-center space-x-4">
+                                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
+                                    <i class="fab fa-facebook-f text-gray-600"></i>
+                                </button>
+                                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
+                                    <i class="fab fa-twitter text-gray-600"></i>
+                                </button>
+                                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
+                                    <i class="fab fa-linkedin-in text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Modal -->
+        <div x-show="videoPlaying" 
+             class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center"
+             @click.self="videoPlaying = false">
+            <div class="bg-white rounded-2xl overflow-hidden max-w-4xl w-full mx-4">
+                <div class="relative aspect-video">
+                    <img src="/api/placeholder/1200/675" alt="Video preview" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <button class="bg-white/20 backdrop-blur-md rounded-full p-6 hover:bg-white/30 transition-all duration-300">
+                            <i class="fas fa-play text-white text-3xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">Course Preview</h3>
+                    <p class="text-gray-600">Get a sneak peek at the course content and teaching style.</p>
+                    <button @click="videoPlaying = false" 
+                            class="mt-4 px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition-colors duration-200">
+                        Close Preview
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
