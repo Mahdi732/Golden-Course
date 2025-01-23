@@ -1,6 +1,55 @@
 <?php
 session_start();
 require_once('../prosses/course.classes.php');
+require_once('../prosses/coursedisplymanagement.php');
+
+if (!isset($_SESSION['user']['id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$teacherId = $_SESSION['user']['id'];
+$courseManagement = new CoursManagement();
+
+// Handle form submission for editing a course
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['edit_course'])) {
+        $courseId = $_POST['course_id'];
+        $title = $_POST['title'];
+        $description = $_POST['description'];
+        $status = $_POST['status'];
+        $course_type = $_POST['course_type'];
+        $document_content = $_POST['document_content'];
+        $video_url = $_POST['video_url'];
+        $category_id = $_POST['category_id'];
+
+        try {
+            $courseManagement->updateCourse($courseId, $title, $description, $status, $course_type, $document_content, $video_url, $category_id, $teacherId);
+            $_SESSION['message'] = "Course updated successfully.";
+            header("Location: teacher_dashboard.php");
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = "An error occurred while updating the course: " . $e->getMessage();
+        }
+    } elseif (isset($_POST['delete_course'])) {
+        $courseId = $_POST['course_id'];
+        try {
+            $courseManagement->deleteCourse($courseId);
+            $_SESSION['message'] = "Course deleted successfully.";
+            header("Location: teacher_dashboard.php");
+            exit();
+        } catch (Exception $e) {
+            $_SESSION['error'] = "An error occurred while deleting the course: " . $e->getMessage();
+        }
+    }
+}
+
+// Fetch course details for editing
+$courseId = $_GET['id'] ?? null;
+$courseDetails = null;
+if ($courseId) {
+    $courseDetails = $courseManagement->getCourseDetailsById($courseId);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,13 +61,13 @@ require_once('../prosses/course.classes.php');
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
-    <!-- Tagify CSS and JS -->
     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 </head>
 <body class="bg-gray-50">
     <div class="flex">
+        <!-- Sidebar -->
         <aside class="fixed h-screen w-64 bg-white shadow-lg">
             <div class="flex items-center justify-center h-16 border-b">
                 <i class="fas fa-chalkboard-teacher text-blue-600 text-2xl mr-2"></i>
@@ -128,7 +177,7 @@ require_once('../prosses/course.classes.php');
 
         <!-- Main Content -->
         <main class="ml-64 flex-1 p-8">
-            <!-- [Previous top bar remains the same] -->
+            <!-- Top Bar -->
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">Welcome Back, Professor!</h1>
@@ -173,12 +222,12 @@ require_once('../prosses/course.classes.php');
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <form action="../prosses/course.classes.php" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form method="POST" class="space-y-6">
                     <input type="hidden" name="course_type" value="document">
                     <div class="grid grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                            <select name="categories_select" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <select name="category_id" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                                 <option value="1">Mathematics</option>
                                 <option value="2">Science</option>
                                 <option value="3">History</option>
@@ -187,8 +236,7 @@ require_once('../prosses/course.classes.php');
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                        <input type="text" name="course_title" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter document title">
+                        <input type="text" name="title" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Content</label>
@@ -196,31 +244,24 @@ require_once('../prosses/course.classes.php');
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea name="course_description" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            rows="4" placeholder="Enter video description"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
-                        <input type="number" name="course_price" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter course price">
+                        <textarea name="description" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" required></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                        <input name="tags" class="tags-input w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Add tags (comma-separated)">
+                        <input name="tags" class="tags-input w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Add tags (comma-separated)">
                     </div>
                     <div class="flex justify-end space-x-4">
                         <button type="button" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
                             Save as Draft
                         </button>
-                        <button type="submit" name="CreateCourseSub" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                        <button type="submit" name="edit_course" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
                             Publish Document
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- //upload video -->
+            <!-- Upload Video -->
             <div id="uploadVideo" class="bg-white rounded-lg shadow-sm p-6 mb-8" style="display: none;">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold">Upload Video Course</h2>
@@ -229,11 +270,11 @@ require_once('../prosses/course.classes.php');
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <form action="../prosses/course.classes.php" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form method="POST" class="space-y-6">
                     <input type="hidden" name="course_type" value="video">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                        <select name="categories_select" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <select name="category_id" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                             <option value="1">Mathematics</option>
                             <option value="2">Science</option>
                             <option value="3">History</option>
@@ -241,23 +282,15 @@ require_once('../prosses/course.classes.php');
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Video Title</label>
-                        <input type="text" name="course_title" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter video title">
+                        <input type="text" name="title" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea name="course_description" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            rows="4" placeholder="Enter video description"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
-                        <input type="number" name="course_price" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Enter course price">
+                        <textarea name="description" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" required></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                        <input name="tags" class="tags-input w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                            placeholder="Add tags (comma-separated)">
+                        <input name="tags" class="tags-input w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Add tags (comma-separated)">
                     </div>
                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                         <input type="file" name="video_file" class="hidden" id="video-upload" accept="video/*">
@@ -267,11 +300,14 @@ require_once('../prosses/course.classes.php');
                             <p class="text-sm text-gray-500 mt-2">Supported formats: MP4, MOV, AVI</p>
                         </label>
                     </div>
-                    <button type="submit" name="CreateCourseSub" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+                    <button type="submit" name="edit_course" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
                         Upload Video
                     </button>
                 </form>
             </div>
+
+            <!-- Display Courses -->
+            <?php $courseManagement->displayCoursesForTeacher($teacherId); ?>
 
             <!-- Recent Activity -->
             <div class="bg-white rounded-lg shadow-sm p-6">
@@ -303,12 +339,10 @@ require_once('../prosses/course.classes.php');
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
-</body>
-<script>
-   
+
+    <script>
         tinymce.init({
             selector: '#document-editor',
             plugins: 'lists link image table code',
@@ -340,6 +374,6 @@ require_once('../prosses/course.classes.php');
                 });
             });
         });
-
     </script>
+</body>
 </html>
